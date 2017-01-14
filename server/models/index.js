@@ -8,8 +8,9 @@ module.exports = {
       db.query('select * from messages inner join users on messages.id_users=users.id order by -messages.id', function(err, rows, fields) {
         if (err) {
           console.error(err);
+          cb(err);
         } else {
-          cb(rows);
+          cb(null, rows);
           return rows;
         }
       });
