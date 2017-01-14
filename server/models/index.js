@@ -5,9 +5,7 @@ module.exports = {
   messages: {
     get: function (res, cb) {
       console.log('MODEL MESSAGE GET CALLED');
-      // db.query('SELECT * FROM messages', function(err, rows, fields) {
-      db.query('select * from messages inner join users on messages.id_users=users.id', function(err, rows, fields) {
-
+      db.query('select * from messages inner join users on messages.id_users=users.id order by -messages.id', function(err, rows, fields) {
         if (err) {
           console.error(err);
         } else {
@@ -46,9 +44,9 @@ module.exports = {
     },
     post: function (body) {
       console.log('MODEL USER POST CALLED');
+      console.log(body);
       var user = body.username;
       var query = `insert ignore into users set user='${user}';`; 
-      // db.connect();
       db.query(query, function(err, rows, fields) {
         if (err) {
           console.error(err);
@@ -56,29 +54,27 @@ module.exports = {
           return rows;
         }
       });
-      // db.end();
-
     }
   },
 
-  rooms: {
-    // Ditto as above.
-    get: function () {
-      console.log('MODEL ROOMS GET CALLED');
+  // rooms: {
+  //   // Ditto as above.
+  //   get: function () {
+  //     console.log('MODEL ROOMS GET CALLED');
       
-    },
-    post: function (body) {
-      console.log('MODEL ROOMS POST CALLED');
-      var roomname = body.roomname;
-      var query = `insert ignore into rooms set roomname='${roomname}';`; 
-      db.query(query, function(err, rows, fields) {
-        if (err) {
-          console.error(err);
-        } else {
-          return rows;
-        }
-      });
-    }
-  }
+  //   },
+  //   post: function (body) {
+  //     console.log('MODEL ROOMS POST CALLED');
+  //     var roomname = body.roomname;
+  //     var query = `insert ignore into rooms set roomname='${roomname}';`; 
+  //     db.query(query, function(err, rows, fields) {
+  //       if (err) {
+  //         console.error(err);
+  //       } else {
+  //         return rows;
+  //       }
+  //     });
+  //   }
+  // }
 };
 

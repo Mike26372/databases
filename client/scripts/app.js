@@ -3,7 +3,10 @@ var app = {
 
   //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
   //to all messages sent by the user
-  server: 'http://127.0.0.1:3000/classes/messages',
+  server: {
+    messages: 'http://127.0.0.1:3000/classes/messages',
+    users: 'http://127.0.0.1:3000/classes/users'
+  },
   username: 'anonymous',
   roomname: 'main',
   lastMessageId: 0,
@@ -30,35 +33,46 @@ var app = {
     app.fetch(false);
 
     // Poll for new messages
-    setInterval(function() {
-      app.fetch(true);
-    }, 3000);
+    // setInterval(function() {
+    //   app.fetch(true);
+    // }, 3000);
   },
 
   send: function(message) {
     app.startSpinner();
 
-    // POST the message to the server
     $.ajax({
-      url: app.server,
+      url: app.server.users,
       type: 'POST',
-      data: JSON.stringify(message),
+      data: message,
       success: function (data) {
-        // Clear messages input
-        app.$message.val('');
+        // ON SUCCESS RUN SUBSEQUENT AJAX ON MESSAGES
+        $.ajax({
+          url: app.server.messages,
+          type: 'POST',
+          data: message,
+          success: function (data) {
+            // Clear messages input
+            app.$message.val('');
 
-        // Trigger a fetch to update the messages, pass true to animate
-        app.fetch();
+            // Trigger a fetch to update the messages, pass true to animate
+            app.fetch();
+          },
+          error: function (error) {
+            console.error('chatterbox: Failed to send message', error);
+          }
+        });
       },
       error: function (error) {
-        console.error('chatterbox: Failed to send message', error);
+        console.error('chatterbox: Failed to send user', error);
       }
     });
+    // POST the message to the server
   },
 
   fetch: function(animate) {
     $.ajax({
-      url: app.server,
+      url: app.server.messages,
       type: 'GET',
       // data: { order: '-createdAt' },
       contentType: 'application/json',
@@ -214,10 +228,12 @@ var app = {
 
   handleSubmit: function(event) {
     var message = {
-      user: app.username,
+      username: app.username,
       message: app.$message.val(),
       roomname: app.roomname || 'main'
     };
+
+    // console.log('message from client before send', message);
 
     app.send(message);
 
